@@ -171,19 +171,17 @@ async function generateStoryFromAPI(grade, length) {
 
 async function generateImageFromAPI(prompt) {
     const storyImage = document.getElementById('storyImage');
-    const apiKey = ""; // 서버리스 함수로 옮길 예정
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${apiKey}`;
-    const payload = {
-        instances: [{ prompt: `${prompt}, children's storybook illustration, hyperrealistic, magical lighting` }],
-        parameters: { "sampleCount": 1 }
-    };
 
-    const response = await fetch(apiUrl, {
+    const response = await fetch('/api/generateImage', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        body: JSON.stringify({ prompt: prompt })
     });
-    if (!response.ok) throw new Error('Image generation failed.');
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(`Image generation failed: ${errorData.message}`);
+    }
 
     const result = await response.json();
     if (result.predictions && result.predictions[0]?.bytesBase64Encoded) {
@@ -270,30 +268,21 @@ async function getAIFeedback(data) {
 - **고쳐줄 부분 ✍️**: \`corrections\` 배열에 있는 **모든 오류**에 대해, "원래 표현"과 "추천 표현"을 비교하여 보여줍니다. "원래 표현"에서는 오류 부분을 \`<span class=\\"correction-original\\">...\</span>\`으로, "추천 표현"에서는 수정된 부분을 \`<span class=\\"correction-fixed\\">...\</span>\`으로 감싸고, 그 아래에 수정 이유(\`reason\`)를 자세히 설명합니다.
 - **내용에 대한 조언**: 글의 내용을 더 발전시킬 수 있는 구체적이고 실질적인 조언을 1~2가지 추가로 제시합니다.`;
 
-    const userQuery = `학생 정보: ${userInfo.grade}학년 ${userInfo.class}반 ${userInfo.number}번 ${userInfo.name}
-[활동 1: 비슷한 점]
-${data.similar}
-[활동 1: 다른 점]
-${data.different}
-[활동 2: 새롭게 창조하기]
-${data.creative}`;
-
-    const apiKey = ""; // 서버리스 함수로 옮길 예정
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
-    const payload = {
-        contents: [{ parts: [{ text: userQuery }] }],
-        systemInstruction: { parts: [{ text: systemPrompt }] },
-        generationConfig: { responseMimeType: "application/json" }
-    };
-
-    const response = await fetch(apiUrl, {
+    const response = await fetch('/api/getFeedback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        body: JSON.stringify({ 
+            userInfo: userInfo, 
+            data: data, 
+            systemPrompt: systemPrompt 
+        })
     });
 
-    if (!response.ok) throw new Error(`API call failed with status: ${response.status}`);
-    
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(`API call failed: ${errorData.message}`);
+    }
+
     const result = await response.json();
     return JSON.parse(result.candidates[0].content.parts[0].text);
 }
