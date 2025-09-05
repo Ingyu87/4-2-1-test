@@ -148,20 +148,21 @@ async function generateStoryFromAPI(grade, length) {
     -   \`story\`: 이야기의 전체 내용 (한국어, 문단은 \\n으로 구분)
     -   \`imagePrompt\`: 이야기의 가장 핵심적인 장면을 묘사하는, AI 이미지 생성기를 위한 한 문장의 프롬프트 (영어, 구체적이고 사실적인 스타일로)`;
 
-    const apiKey = ""; // 서버리스 함수로 옮길 예정
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
-    const payload = {
-        contents: [{ parts: [{ text: `초등학교 ${grade}학년 수준의 비현실적인 이야기를 만들어줘.` }] }],
-        systemInstruction: { parts: [{ text: systemPrompt }] },
-        generationConfig: { responseMimeType: "application/json" }
-    };
-
-    const response = await fetch(apiUrl, {
+    // API 호출 주소가 우리 서버리스 함수 주소로 변경되었습니다.
+    const response = await fetch('/api/generateStory', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        body: JSON.stringify({
+            grade: grade,
+            systemPrompt: systemPrompt
+        })
     });
-    if (!response.ok) throw new Error(`Story API error: ${response.status}`);
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(`API error: ${errorData.message}`);
+    }
+    
     const result = await response.json();
     let jsonString = result.candidates[0].content.parts[0].text;
     jsonString = jsonString.replace(/^```json\s*/, '').replace(/```$/, '');
