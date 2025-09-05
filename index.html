@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 글쓰기 교실 - 비교하며 창조하기</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="flex items-center justify-center min-h-screen">
+    <div class="background-character character-sprout"></div>
+    <div class="background-character character-cat"></div>
+
+    <div id="app" class="w-full max-w-screen-2xl mx-auto p-4 md:p-8">
+
+        <div id="userInfoPage" class="bg-white p-8 rounded-2xl shadow-2xl max-w-xl mx-auto text-center border-4 border-amber-200">
+            <h1 class="text-3xl font-bold mb-2 text-gray-800 flex items-center justify-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-amber-500"><path d="M12 3c7.2 0 9 1.8 9 9s-1.8 9-9 9-9-1.8-9-9 1.8-9 9-9z"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01"/><path d="M15 9h.01"/></svg>
+                AI 글쓰기 교실
+            </h1>
+            <p class="text-gray-600 mb-8">AI가 만들어주는 새로운 이야기로 글쓰기를 시작해봐요!</p>
+            <div class="space-y-4 text-left">
+                <div class="grid grid-cols-3 gap-4">
+                    <div>
+                        <label for="grade" class="block text-sm font-medium text-gray-700">학년</label>
+                        <input type="number" id="grade" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 sm:text-sm" placeholder="4">
+                    </div>
+                    <div>
+                        <label for="class" class="block text-sm font-medium text-gray-700">반</label>
+                        <input type="number" id="class" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 sm:text-sm" placeholder="3">
+                    </div>
+                    <div>
+                        <label for="number" class="block text-sm font-medium text-gray-700">번</label>
+                        <input type="number" id="number" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 sm:text-sm" placeholder="1">
+                    </div>
+                </div>
+                <div>
+                    <label for="name" class="block text-sm font-medium text-gray-700">이름</label>
+                    <input type="text" id="name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 sm:text-sm" placeholder="백인규">
+                </div>
+            </div>
+            <button id="startBtn" class="mt-8 w-full bg-amber-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-amber-600 transition-transform transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 shadow-lg">
+                활동 시작!
+            </button>
+        </div>
+        
+        <div id="storySelectionPage" class="hidden bg-white p-8 rounded-2xl shadow-2xl max-w-2xl mx-auto text-center border-4 border-sky-200">
+            <h1 class="text-3xl font-bold mb-2 text-gray-800">이야기 만들기 🎨</h1>
+            <p class="text-gray-600 mb-6">글쓰기 활동을 할 이야기의 학년 수준을 골라주세요.</p>
+            <div id="gradeButtons" class="flex justify-center gap-4 mb-6">
+                <button data-grade="4" class="grade-btn bg-sky-500 text-white font-bold py-3 px-6 rounded-lg transition-transform transform hover:scale-105 shadow-md">4학년</button>
+                <button data-grade="5" class="grade-btn bg-teal-500 text-white font-bold py-3 px-6 rounded-lg transition-transform transform hover:scale-105 shadow-md">5학년</button>
+                <button data-grade="6" class="grade-btn bg-indigo-500 text-white font-bold py-3 px-6 rounded-lg transition-transform transform hover:scale-105 shadow-md">6학년</button>
+            </div>
+            
+            <p class="text-gray-600 mb-4 mt-8">이야기의 길이를 골라주세요.</p>
+            <div id="lengthButtons" class="flex justify-center gap-4 mb-8">
+                <button data-length="short" class="length-btn bg-gray-200 text-gray-700 font-bold py-2 px-5 rounded-lg transition-transform transform hover:scale-105 shadow-sm">짧은 글</button>
+                <button data-length="medium" class="length-btn bg-gray-200 text-gray-700 font-bold py-2 px-5 rounded-lg transition-transform transform hover:scale-105 shadow-sm">중간 글</button>
+                <button data-length="long" class="length-btn bg-gray-200 text-gray-700 font-bold py-2 px-5 rounded-lg transition-transform transform hover:scale-105 shadow-sm">긴 글</button>
+            </div>
+
+            <button id="generateStoryBtn" class="w-full bg-amber-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-amber-600 transition disabled:bg-gray-400 disabled:cursor-not-allowed shadow-lg" disabled>
+                새로운 이야기 만들기
+            </button>
+        </div>
+
+
+        <div id="writingPage" class="hidden">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:h-[calc(100vh-4rem)]">
+                <div class="bg-white p-6 rounded-2xl shadow-xl overflow-y-auto h-[50vh] md:h-auto">
+                    <h2 class="text-2xl font-bold mb-4 text-gray-800 flex items-center gap-2">📖 오늘의 이야기</h2>
+                    <img id="storyImage" src="https://placehold.co/600x400/FFF1BF/8C5A03?text=AI+이미지+생성+중..." alt="생성된 이야기 이미지" class="rounded-lg mb-4 w-full object-cover">
+                    <div id="storyContent" class="prose max-w-none text-gray-700">
+                        <h3 id="storyTitle" class="font-bold text-xl">제목이 생성됩니다</h3>
+                        <p id="storyText">이야기 내용이 여기에 생성됩니다...</p>
+                    </div>
+                </div>
+                <div class="bg-white rounded-2xl shadow-xl flex flex-col">
+                    <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2 p-6 pb-2">✏️ 글쓰기 활동</h2>
+                    <div class="flex-grow flex flex-col gap-6 p-6 pt-2 overflow-y-auto">
+                        <div>
+                            <h3 class="font-semibold text-lg mb-2 text-gray-700">활동 1: 비교하며 글쓰기</h3>
+                            <p class="text-sm text-gray-600 mb-3">오늘의 이야기에 나타난 모습과 현실의 모습을 비교하여 비슷한 점과 다른 점을 찾아 써보세요.</p>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="font-medium text-gray-600">✅ 비슷한 점</label>
+                                    <textarea id="activity1_similar" class="writing-textarea h-48" placeholder="이야기 속 인물의 마음이나 상황이 현실과 비슷한 점을 써보세요..."></textarea>
+                                    <p id="counter1_similar" class="char-counter">0자 / 최소 100자</p>
+                                </div>
+                                <div>
+                                    <label class="font-medium text-gray-600">🤔 다른 점</label>
+                                    <textarea id="activity1_different" class="writing-textarea h-48" placeholder="이야기 속 비현실적인 부분처럼 현실에서 일어나기 어려운 점을 써보세요..."></textarea>
+                                    <p id="counter1_different" class="char-counter">0자 / 최소 100자</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex flex-col flex-grow">
+                                <h3 class="font-semibold text-lg mb-2 text-gray-700">활동 2: 새롭게 창조하기</h3>
+                                <p class="text-sm text-gray-600 mb-3">이야기 속 비현실적인 내용을, 현실에서 일어날 수 있는 이야기로 바꾸어 새롭게 창조해보세요.</p>
+                            <textarea id="activity2_creative" class="writing-textarea flex-grow" placeholder="예) 하늘을 나는 신발 대신, 아주 빠른 최첨단 드론을 만드는 이야기..."></textarea>
+                            <p id="counter2_creative" class="char-counter">0자 / 최소 400자</p>
+                        </div>
+                    </div>
+                    <div class="p-6 pt-0">
+                        <button id="submitBtn" class="w-full bg-sky-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-sky-600 transition disabled:bg-gray-400 disabled:cursor-not-allowed shadow-lg">
+                            제출하고 첨삭 받기
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="feedbackPage" class="hidden">
+            <div id="feedbackContent" class="grid grid-cols-1 md:grid-cols-2 gap-8 md:h-[calc(100vh-4rem)]">
+                    <div class="bg-white p-6 rounded-2xl shadow-xl overflow-y-auto">
+                    <h2 class="text-2xl font-bold mb-4 text-gray-800">📝 내가 쓴 글</h2>
+                    <div id="myWritingResult"></div>
+                </div>
+                <div class="bg-sky-50 p-6 rounded-2xl shadow-xl overflow-y-auto">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-bold text-gray-800">👩‍🏫 AI 선생님의 첨삭 지도</h2>
+                        <button id="downloadBtn" class="bg-white border border-sky-600 text-sky-600 font-bold py-2 px-4 rounded-lg hover:bg-sky-100 transition">PDF로 저장하기</button>
+                    </div>
+                    <div id="aiFeedbackResult" class="prose max-w-none"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="loading" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div class="text-center bg-white p-8 rounded-2xl shadow-lg">
+                <div class="w-16 h-16 border-4 border-dashed rounded-full animate-spin border-sky-500 mx-auto"></div>
+                <p id="loadingText" class="text-gray-700 text-lg mt-4 font-semibold">AI가 이야기를 만들고 있어요...</p>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
