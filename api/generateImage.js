@@ -5,11 +5,9 @@ export default async function handler(req, res) {
 
     try {
         const { prompt } = req.body;
-        // 이미지 생성에는 별도의 API 키가 필요할 수 있습니다.
-        // 만약 Gemini API 키와 동일하다면 그대로 사용하고, 다르다면 Vercel에 새로 추가해야 합니다.
         const apiKey = process.env.IMAGEN_API_KEY || process.env.GEMINI_API_KEY;
-        
-        // 모델 이름을 최신 버전으로 수정했습니다.
+
+        // 모델 이름을 최신 버전으로 수정한 부분입니다.
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${apiKey}`;
 
         const payload = {
